@@ -6,36 +6,98 @@
 #include <gazebo/transport/transport.hh>
 #include <gazebo/msgs/msgs.hh>
 
+#include <gazebo/common/common.hh>
+#include <ignition/math/Vector3.hh>
+
 #include <thread>
 #include "ros/ros.h"
 #include "ros/callback_queue.h"
 #include "ros/subscribe_options.h"
 #include "std_msgs/Float32.h"
-#include "/home/hyeok/KH/KH_01/KH_02.hpp"
-
+#include "kh_02.hpp"
 
 using namespace std;
+
+class radPlugin;
+
 
 namespace gazebo {
 
     class radPlugin : public ModelPlugin{
     public:
         radPlugin(){}
-        virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
 
-            cout << "cout from Load" << endl;
+
+
+        virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
             con_T(__func__);
-            int sus[10] = {10, 10, 0};
+            assignMembers(_model);
+            pidToJoints();
+
+//            this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+//                std::bind(&radPlugin::OnUpdate, this));
+
 
         }
 
 
+
+        void OnUpdate(){
+            this->SetVelocity(5);
+        }
+
+
+
+        //////////////////////////////////////////////////////////////////////
+
+        void assignMembers(physics::ModelPtr _model){
+
+            con_T(__func__);
+            this->model   = _model;
+            this->wheelJ1 = model->GetJoints()[0];
+            this->wheelJ2 = model->GetJoints()[1];
+
+            con_T("name of model : " + model  ->GetName() );
+            con_T("name of j1    : " + wheelJ1->GetName() );
+            con_T("name of j2    : " + wheelJ2->GetName() );
+
+        }
+
+
+        void pidToJoints(){
+
+            con_T(__func__);
+
+            this->pid = common::PID(0.1, 0, 0);
+            this->model->GetJointController()->SetVelocityPID(
+                this->wheelJ1->GetScopedName(), this->pid);
+            this->model->GetJointController()->SetVelocityPID(
+                this->wheelJ2->GetScopedName(), this->pid);
+
+        }
+
+        void SetVelocity(int _vel){
+            con_T(__func__);
+            this->model->GetJointController()->SetVelocityPID(
+                this->wheelJ1->GetScopedName(), _vel);
+
+            this->model->GetJointController()->SetVelocityTarget(
+                this->wheelJ2->GetScopedName(), _vel);
+
+        }
+
+
+
+
     private:
+        event::ConnectionPtr updateConnection;
         physics::ModelPtr model;
         physics::JointPtr wheelJ1;
         physics::JointPtr wheelJ2;
         common::PID pid;
     };
+
+    GZ_REGISTER_MODEL_PLUGIN(radPlugin)
 
 }
 

@@ -6,7 +6,7 @@
 #include <array>
 #include <iostream>
 #include <memory>
-#define INT_MAX 2147483647
+#define INT_MAX_ 2147483647
 
 
 using namespace std;
@@ -32,10 +32,10 @@ inline auto curryBackword(Func func, Args... args){
 }
 
 
-template <typename T, typename enable_if_t<is_pointer<T>::value>* = nullptr>
-inline auto con_Iarr(T _arr, int size = INT_MAX , int acc = 0){
+template <typename T>
+inline auto con_Iarr(T _arr, int size = INT_MAX_ , int acc = 0){
 
-    if(acc == size || *(_arr + acc) == INT_MAX){ return;}
+    if(acc == size || *(_arr + acc) == INT_MAX_){ return;}
     cout << *(_arr + acc) << endl;
 
     return con_Iarr(_arr, size, acc + 1);
@@ -43,7 +43,7 @@ inline auto con_Iarr(T _arr, int size = INT_MAX , int acc = 0){
 }
 
 
-template <typename T, typename enable_if_t<is_same<T, int(*)[6]>::value>* = nullptr>
+template <typename T>
 inline auto uPai6_pai6( T _pai6, int row = 3 ){
 
 
@@ -67,7 +67,7 @@ inline auto uPai6_pai6( T _pai6, int row = 3 ){
 
 }
 
-template < typename T , typename Fuc, typename enable_if_t<is_class<T>::value>* = nullptr>
+template < typename T , typename Fuc>
 inline auto map_uPai6( T& _uPai6, Fuc _fuc, int row = 3){
 
     for(int i = 0 ; i < row ; ++i){
@@ -76,7 +76,7 @@ inline auto map_uPai6( T& _uPai6, Fuc _fuc, int row = 3){
         }
     }
 }
-template < typename T , typename Fuc, typename enable_if_t<is_pointer<T>::value>* = nullptr>
+template < typename T , typename Fuc>
 inline auto map_Pai6( T& _uPai6, Fuc _fuc, int row = 3){
 
     for(int i = 0 ; i < row ; ++i){
