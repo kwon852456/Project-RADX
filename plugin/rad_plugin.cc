@@ -34,8 +34,8 @@ namespace gazebo {
             assignMembers(_model);
             pidToJoints();
 
-//            this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-//                std::bind(&radPlugin::OnUpdate, this));
+            this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+                std::bind(&radPlugin::OnUpdate, this));
 
 
         }
@@ -54,8 +54,8 @@ namespace gazebo {
 
             con_T(__func__);
             this->model   = _model;
-            this->wheelJ1 = model->GetJoints()[0];
-            this->wheelJ2 = model->GetJoints()[1];
+            this->wheelJ1 = model->GetJoints()[3];
+            this->wheelJ2 = model->GetJoints()[4];
 
             con_T("name of model : " + model  ->GetName() );
             con_T("name of j1    : " + wheelJ1->GetName() );
@@ -68,18 +68,20 @@ namespace gazebo {
 
             con_T(__func__);
 
-            this->pid = common::PID(0.1, 0, 0);
+            this->pid1 = common::PID(0.1, 0, 0);
+            this->pid2 = common::PID(0.1, 0, 0);
+
             this->model->GetJointController()->SetVelocityPID(
-                this->wheelJ1->GetScopedName(), this->pid);
+                this->wheelJ1->GetScopedName(), this->pid1);
             this->model->GetJointController()->SetVelocityPID(
-                this->wheelJ2->GetScopedName(), this->pid);
+                this->wheelJ2->GetScopedName(), this->pid2);
 
         }
 
         void SetVelocity(int _vel){
-            con_T(__func__);
-            this->model->GetJointController()->SetVelocityPID(
-                this->wheelJ1->GetScopedName(), _vel);
+
+            this->model->GetJointController()->SetVelocityTarget(
+                this->wheelJ1->GetScopedName(), -_vel);
 
             this->model->GetJointController()->SetVelocityTarget(
                 this->wheelJ2->GetScopedName(), _vel);
@@ -94,8 +96,9 @@ namespace gazebo {
         physics::ModelPtr model;
         physics::JointPtr wheelJ1;
         physics::JointPtr wheelJ2;
-        common::PID pid;
-    };
+        common::PID pid1;
+        common::PID pid2;
+     };
 
     GZ_REGISTER_MODEL_PLUGIN(radPlugin)
 
